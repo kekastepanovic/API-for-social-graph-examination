@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+    
+//Suggested friends-Friends of friends of your friends-they can't be your friends and you 
+function SuggestedFriends(jsonresponse,i){
+    var sss="";
+    if(jsonresponse[i].friends.length>1){
+    for(kk=0;kk<jsonresponse.length;kk++){
+        if(kk!==i-1){
+        var counter=0;
+        for(jjj=0;jjj<jsonresponse[i].friends.length;jjj++){
+           for(kkk=0;kkk<jsonresponse[kk].friends.length;kkk++){
+               if(jsonresponse[i].friends[jjj]==jsonresponse[kk].friends[kkk])
+                   counter=counter+1;
+           }
+    }
+    if(counter>1)
+        sss+=jsonresponse[kk].firstName;
+        }
+    }
+   var xsss=sss.split(jsonresponse[i].firstName).join(""); // he can 
+   for(jjjj=0;jjjj<jsonresponse[i].friends.length;jjjj++){
+       var xsss=xsss.split(jsonresponse[jsonresponse[i].friends[jjjj]-1].firstName).join("");
+   }
+  }
+    else 
+        xsss=sss+"To have suggested friends person must have more then one direct friend";
+   return xsss;
+}
+
+//Friends of your friends-They can also be your friends, but it can't be you
+function FriendsOfMyFriends(jsonresponse,i){
+    var ss="";
+    for(jj=0;jj<jsonresponse[i].friends.length;jj++){
+       var index=jsonresponse[i].friends[jj];
+       ss+=MyFriends(jsonresponse,index-1)+" ";
+    }
+   var xss=ss.split(jsonresponse[i].firstName).join("");
+   for(jjjjj=0;jjjjj<jsonresponse[i].friends.length;jjjjj++){
+       var xss=xss.split(jsonresponse[jsonresponse[i].friends[jjjjj]-1].firstName).join("");
+   }
+   return xss;
+}
+//Your friends
+function MyFriends(jsonresponse,i){
+    var s="";
+    for(j=0;j<jsonresponse[i].friends.length;j++){
+       var index=jsonresponse[i].friends[j];
+       s+=jsonresponse[index-1].firstName+" ";
+   }
+   return s;
+}
+
+function loadJSON(callback) {
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'data.json', true);
+    xobj.onreadystatechange = function() {
+        if (xobj.readyState == 4 && xobj.status == "200") {
+            callback(xobj.responseText);
+        }
+    }
+    xobj.send(null);
+}
+
+loadJSON(function(response) {
+jsonresponse = JSON.parse(response);
+;});
+
+function printFriends(){
+    var all="";
+    var it_exist=0;
+    var name=document.firstform.firstname.value;
+    for(i=0;i<jsonresponse.length;i++){
+        if(jsonresponse[i].firstName==name){
+            var s="My Friends: "+MyFriends(jsonresponse,i);
+            var ss="Friends of my friends: "+FriendsOfMyFriends(jsonresponse,i); //you cannot be a friends to yourself    
+            var sss="Suggested friends: "+SuggestedFriends(jsonresponse,i);
+            all=s+"<br>"+ss+"<br>"+sss;
+            it_exist=1;
+            break;
+        }
+    }
+    if(it_exist==0) all+="The name does not exist in a database";
+    document.getElementById("demo").innerHTML=all;
+}
+</script>
+<style>
+  body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+  header {
+  background-color: #666;
+  padding: 30px;
+  text-align: center;
+  font-size: 35px;
+  color: white;
+  width: 100%;
+}
+article {
+  padding: 20px;
+  width: 100%;
+  background-color: #f1f1f1;
+  height: 300px; 
+  color: graytext;
+}
+
+footer {
+  background-color: #777;
+  padding: 10px;
+  text-align: center;
+  color: white;
+  width: 100%;
+}  
+</style>
+</head>
+<body>
+<form name="firstform" method="POST">
+<header><h2>Find your friends, friends of your friends and suggested friends</h2></header>
+<article>
+ <p>Type a name of a person for whom you want to see a social content</p>
+<input name="firstname" type="text" id="firstname" size="20">
+<input type="button" value="Click here" id="clickMe" onclick="printFriends()">
+<p id="demo"></p>
+</article>
+<footer>Copyright@2019</footer>
+</form>
+</body>
+</html>
